@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { TrashIcon, PencilIcon } from '@heroicons/react/24/outline'
 
 import DeleteModal from './DeleteModal';
@@ -7,7 +7,29 @@ import { HALLS } from '../../helpers/constants';
 
 const Halls = () => {
   const [open, setOpen] = useState(false);
-  const [x, y] = useState(false);
+  const [editOpen, setEditOpen] = useState(false);
+  const [hallId, setHallId] = useState();
+  const [hall, setHall] = useState();
+  const [halls, setHalls] = useState(HALLS);
+
+  useEffect(() => {
+    setHall(halls.find(hall => hall.id === hallId))
+  }, [hallId]);
+
+  const handleSubmit = (id, name) => {    
+    const newHalls = halls.map(el => {
+      if (el.id === id) {
+        el.name = name;
+        return el;
+      } else {
+        return el;
+      }
+    })
+
+    setHalls(newHalls);
+    setEditOpen(false);
+  }
+
   return (
     <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 my-6">
       <header className="mb-6 text-3xl font-semibold">
@@ -32,7 +54,7 @@ const Halls = () => {
             </thead>
 
             <tbody>
-              {HALLS.map(hall => {
+              {halls.map(hall => {
                 return (
                   <tr key={hall.id}>
                     <th className="px-6 py-4 border border-solid border-slate-300 align-middle text-xs whitespace-nowrap text-left text-slate-700">
@@ -43,7 +65,13 @@ const Halls = () => {
                     </td>
                     <td className="px-6 py-4 border border-solid border-slate-300 align-middle text-xs whitespace-nowrap text-left text-slate-700">
                       <div className="flex space-x-2">
-                        <PencilIcon className="h-4 w-4 text-blue-500 cursor-pointor"  onClick={() => y(true)}/>
+                        <PencilIcon 
+                          className="h-4 w-4 text-blue-500 cursor-pointor"  
+                          onClick={() => {
+                            setEditOpen(true);
+                            setHallId(hall.id);
+                          }}
+                        />
                         <TrashIcon className="h-4 w-4 text-rose-500 cursor-pointor" onClick={() => setOpen(true)} />
                       </div>
                     </td>
@@ -56,8 +84,7 @@ const Halls = () => {
       </div>
 
       <DeleteModal open={open} setOpen={setOpen} />
-      <EditModal x={x} y={y} />
-      
+      <EditModal editOpen={editOpen} setEditOpen={setEditOpen} hall={hall} handleSubmit={handleSubmit} />
     </div>
   );
 }
